@@ -19,11 +19,11 @@ import UIKit
 // 初始化xib View
 public extension UIView {
     
-    public class func ga_xibViewFrom<T: UIView>(_ viewType: T.Type) -> T {
+    class func ga_xibViewFrom<T: UIView>(_ viewType: T.Type) -> T {
         return Bundle.main.loadNibNamed(String(describing: viewType), owner: nil, options: nil)?.first as! T
     }
     
-    public class func ga_xibView() -> Self {
+    class func ga_xibView() -> Self {
         return ga_xibViewFrom(self)
     }
 }
