@@ -126,7 +126,7 @@ public extension UITableView {
             let b = self.contentInset.bottom
             let r = self.contentInset.right
             self.placeHolderView?.frame = CGRect(x: w / 2 - pW / 2 - l / 2 + r / 2, y: h / 2 - pH / 2 - offSetY - t / 2 + b / 2, width: pW - l - r, height: pH - t - b)
-            self.placeHolderView?.backgroundColor = UIColor.orange
+//            self.placeHolderView?.backgroundColor = UIColor.orange
             self.addSubview(self.placeHolderView!)
             //            self.backgroundView = self.placeHolderView
         } else {
@@ -236,7 +236,7 @@ public extension UICollectionView {
             let pH: CGFloat = self.placeHolderView?.frame.size.height ?? 0
             let offSetY: CGFloat = emptyDelegate.tableViewPlaceHolderViewOffSetY()
             self.placeHolderView?.frame = CGRect(x: w / 2 - pW / 2, y: h / 2 - pH / 2 - offSetY, width: pW, height: pH)
-            self.placeHolderView?.backgroundColor = UIColor.orange
+//            self.placeHolderView?.backgroundColor = UIColor.orange
             self.addSubview(self.placeHolderView!)
         } else {
             print("UITableView+PlacerHolder ga_judgeEmpty() 没遵守代理")
