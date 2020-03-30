@@ -7,23 +7,23 @@
 //  感谢 微博@iOS程序犭袁
 
 /*
-    001、// 必须实现numberOfSections代理方法
+ 001、// 必须实现numberOfSections代理方法
  
-    002、self.tableView.emptyDelegate = self
+ 002、self.tableView.emptyDelegate = self
  
-    // 刷新使用ga_reloadData()
-    003、self.tableView.ga_reloadData()
+ // 刷新使用ga_reloadData()
+ 003、self.tableView.ga_reloadData()
  
-    004、// 实现代理UITableViewPlaceHolderDelegate方法
+ 004、// 实现代理UITableViewPlaceHolderDelegate方法
  public extension <#UIViewController#>: UITableViewPlaceHolderDelegate {
-    func tableViewPlaceHolderView() -> UIView {
-        let v = <#UIView#>
-        return v
-    }
+ func tableViewPlaceHolderView() -> UIView {
+ let v = <#UIView#>
+ return v
+ }
  
-    func tableViewEnableScrollWhenPlaceHolderViewShowing() -> Bool {
-        return <#true#>
-    }
+ func tableViewEnableScrollWhenPlaceHolderViewShowing() -> Bool {
+ return <#true#>
+ }
  }
  */
 
@@ -36,6 +36,7 @@ public enum UIScrollViewHolderType: Int {
 public protocol UITableViewPlaceHolderDelegate {
     func tableViewPlaceHolderView() -> UIView
     func tableViewEnableScrollWhenPlaceHolderViewShowing() -> Bool
+    func tableViewPlaceHolderViewOffSetY() -> CGFloat
     func tableViewClickedPlaceHolderViewRefresh()
     func tableViewPlaceHolder_NoNetWork_View() -> UIView?
 }
@@ -89,10 +90,6 @@ public extension UITableView {
         if isEmpty() {
             placeholderView(type: .empty)
         }
-        
-        if isEmpty() {
-            placeholderView(type: .empty)
-        }
     }
     
     private func isEmpty() -> Bool {
@@ -117,26 +114,22 @@ public extension UITableView {
             } else {
                 if let v = emptyDelegate.tableViewPlaceHolder_NoNetWork_View() {
                     self.placeHolderView = v
-                } else {
-                    let img = UIImage(named: "new_noInternet")
-                    let imgV = UIImageView(image: img)
-                    imgV.isUserInteractionEnabled = true
-                    imgV.frame = self.bounds
-                    imgV.contentMode = .center
-                    self.placeHolderView = imgV
                 }
             }
-            self.placeHolderView?.frame = CGRect(x: 0, y: 0, width: self.frame.size.width, height: self.frame.size.height)
-            if let placeHolderView = self.placeHolderView {
-                self.addSubview(placeHolderView)
-            } else {
-                print("UITableView+PlacerHolder ga_judgeEmpty() 没有view")
-            }
+            let w: CGFloat = self.frame.size.width
+            let h: CGFloat = self.frame.size.height
+            let pW: CGFloat = self.placeHolderView?.frame.size.width ?? 0
+            let pH: CGFloat = self.placeHolderView?.frame.size.height ?? 0
+            let offSetY: CGFloat = emptyDelegate.tableViewPlaceHolderViewOffSetY()
+            self.placeHolderView?.frame = CGRect(x: w / 2 - pW / 2, y: h / 2 - pH / 2 - offSetY, width: pW, height: pH)
+            self.placeHolderView?.backgroundColor = UIColor.orange
+            self.addSubview(self.placeHolderView!)
+            //            self.backgroundView = self.placeHolderView
         } else {
             print("UITableView+PlacerHolder ga_judgeEmpty() 没遵守代理")
         }
     }
- 
+    
     private func removeView() {
         self.isScrollEnabled = true
         self.placeHolderView?.removeFromSuperview()
@@ -152,6 +145,7 @@ public extension UITableView {
 @objc public protocol UICollectionViewPlaceHolderDelegate: class {
     func collectionViewPlaceHolderView() -> UIView
     func collectionViewEnableScrollWhenPlaceHolderViewShowing() -> Bool
+    func tableViewPlaceHolderViewOffSetY() -> CGFloat
     @objc optional func collectionViewPlaceHolderViewFrame() -> CGRect
     func collectionViewPlaceHolder_NoNetWork_View() -> UIView?
     func collectionViewClickedPlaceHolderViewRefresh()
@@ -230,21 +224,16 @@ public extension UICollectionView {
             } else {
                 if let v = emptyDelegate.collectionViewPlaceHolder_NoNetWork_View() {
                     self.placeHolderView = v
-                } else {
-                    let img = UIImage(named: "new_noInternet")
-                    let imgV = UIImageView(image: img)
-                    imgV.isUserInteractionEnabled = true
-                    imgV.frame = self.bounds
-                    imgV.contentMode = .center
-                    self.placeHolderView = imgV
                 }
             }
-            self.placeHolderView?.frame = CGRect(x: 0, y: 0, width: self.frame.size.width, height: self.frame.size.height)
-            if let placeHolderView = self.placeHolderView {
-                self.addSubview(placeHolderView)
-            } else {
-                print("UITableView+PlacerHolder ga_judgeEmpty() 没有view")
-            }
+            let w: CGFloat = self.frame.size.width
+            let h: CGFloat = self.frame.size.height
+            let pW: CGFloat = self.placeHolderView?.frame.size.width ?? 0
+            let pH: CGFloat = self.placeHolderView?.frame.size.height ?? 0
+            let offSetY: CGFloat = emptyDelegate.tableViewPlaceHolderViewOffSetY()
+            self.placeHolderView?.frame = CGRect(x: w / 2 - pW / 2, y: h / 2 - pH / 2 - offSetY, width: pW, height: pH)
+            self.placeHolderView?.backgroundColor = UIColor.orange
+            self.addSubview(self.placeHolderView!)
         } else {
             print("UITableView+PlacerHolder ga_judgeEmpty() 没遵守代理")
         }
@@ -262,6 +251,20 @@ public extension UICollectionView {
     }
 }
 
-struct UIScrollViewKey {
-    static var kNetWorkManager: UInt = 20180831
+extension UIScrollView {
+    func global_swizzleinstanceSelector(origSel: Selector, replaceSel: Selector) {
+        guard let origMethod = class_getInstanceMethod(self.classForCoder, origSel) else {
+            return
+        }
+        guard let replaceMethod = class_getInstanceMethod(self.classForCoder, replaceSel) else {
+            return
+        }
+        
+        let didAddMethod = class_addMethod(self.classForCoder, origSel, method_getImplementation(replaceMethod), method_getTypeEncoding(replaceMethod))
+        if didAddMethod {
+            class_replaceMethod(self.classForCoder, replaceSel, method_getImplementation(replaceMethod), method_getTypeEncoding(replaceMethod))
+        } else {
+            method_exchangeImplementations(origMethod, replaceMethod)
+        }
+    }
 }
