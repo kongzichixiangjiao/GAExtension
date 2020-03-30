@@ -121,7 +121,11 @@ public extension UITableView {
             let pW: CGFloat = self.placeHolderView?.frame.size.width ?? 0
             let pH: CGFloat = self.placeHolderView?.frame.size.height ?? 0
             let offSetY: CGFloat = emptyDelegate.tableViewPlaceHolderViewOffSetY()
-            self.placeHolderView?.frame = CGRect(x: w / 2 - pW / 2, y: h / 2 - pH / 2 - offSetY, width: pW, height: pH)
+            let l = self.contentInset.left
+            let t = self.contentInset.top
+            let b = self.contentInset.bottom
+            let r = self.contentInset.right
+            self.placeHolderView?.frame = CGRect(x: w / 2 - pW / 2 - l / 2 + r / 2, y: h / 2 - pH / 2 - offSetY - t / 2 + b / 2, width: pW - l - r, height: pH - t - b)
             self.placeHolderView?.backgroundColor = UIColor.orange
             self.addSubview(self.placeHolderView!)
             //            self.backgroundView = self.placeHolderView

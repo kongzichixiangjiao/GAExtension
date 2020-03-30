@@ -14,7 +14,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        tableView.contentInset = UIEdgeInsets(top: 50, left: 100, bottom: 50, right: 50)
         tableView.emptyDelegate = self
         
     }
@@ -31,7 +31,7 @@ class ViewController: UIViewController {
 
 extension ViewController: UITableViewPlaceHolderDelegate {
     func tableViewPlaceHolderViewOffSetY() -> CGFloat {
-        return 100
+        return 0
     }
     
     func tableViewPlaceHolderView() -> UIView {
