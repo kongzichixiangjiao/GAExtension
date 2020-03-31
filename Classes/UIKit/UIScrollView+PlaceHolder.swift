@@ -89,6 +89,9 @@ public extension UITableView {
         
         if isEmpty() {
             placeholderView(type: .empty)
+            self.separatorStyle = .none
+        } else {
+            
         }
     }
     
